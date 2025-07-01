@@ -3,7 +3,7 @@ const cors = require('cors')
 require('dotenv').config()
 const app=express()
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middlewire 
 app.use(cors());
 app.use(express.json());
@@ -46,6 +46,15 @@ app.get('/posts',async(req,res)=>{
     const result = await coursor.toArray();
     res.send(result)
 })
+
+//get one post using id
+app.get('/posts/:id',async(req,res)=>{
+    const id = req.params.id;
+    const query={_id : new ObjectId(id)}
+    const result = await postcollection.findOne(query)
+    res.send(result)
+})
+
 // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
