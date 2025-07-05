@@ -32,13 +32,27 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const postcollection = client.db('SatradalDB').collection('posts')
-
+    const membercollection = client.db('Allmember').collection('member')
 //post 
 app.post('/posts',async(req,res)=>{
  const newpost = req.body;
  res.send(newpost);
  const result = await postcollection.insertOne(newpost)
  res.send(result)
+})
+//post a member/add member
+app.post('members',async(req,res)=>{
+  const newmember = req.body;
+  res.send(newmember);
+  const result = await membercollection.insertOne(newmember)
+  res.send(result)
+})
+//get all members
+app.get('/members',async(req,ses)=>{
+  const coursor = membercollection.find();
+  const result = await coursor.toArray();
+  res.send(result)
+
 })
 
 //get all posts
