@@ -2,6 +2,9 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const app=express()
+const multer = require('multer')
+const path =require('path')
+const fs= require('fs')
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middlewire 
@@ -13,6 +16,14 @@ app.get('/',(req,res)=>{
 })
 
 
+//setup file upload
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+const storage = multer.diskStorage({
+  destination: uploadDir,
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@user-management-system.h2w7at6.mongodb.net/?retryWrites=true&w=majority&appName=user-management-system`;
 
@@ -25,6 +36,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
 
 async function run() {
   try {
@@ -41,19 +53,27 @@ app.post('/posts',async(req,res)=>{
  res.send(result)
 })
 //post a member/add member
-app.post('members',async(req,res)=>{
-  const newmember = req.body;
-  res.send(newmember);
-  const result = await membercollection.insertOne(newmember)
-  res.send(result)
-})
+app.post('/members', async (req, res) => {
+ const newmember=req.body;
+ res.send(newmember);
+ const result = await membercollection.insertOne(newmember)
+ res.send(result)
+});
 //get all members
-app.get('/members',async(req,ses)=>{
+app.get('/members',async(req,res)=>{
   const coursor = membercollection.find();
   const result = await coursor.toArray();
   res.send(result)
 
 })
+//get single member by id
+app.get('/members/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query ={_id : new ObjectId(id)}
+  const result = await membercollection.findOne(query)
+  res.send(result)
+})
+//get photo
 
 //get all posts
 app.get('/posts',async(req,res)=>{
@@ -74,6 +94,13 @@ app.delete('/posts/:id',async(req,res)=>{
   const id = req.params.id;
   const query = {_id : new ObjectId(id)}
   const result=await postcollection.deleteOne(query)
+  res.send(result)
+})
+//==========Delete user==============
+app.delete('/members/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id : new ObjectId(id)}
+  const result=await membercollection.deleteOne(query)
   res.send(result)
 })
 // Send a ping to confirm a successful connection
