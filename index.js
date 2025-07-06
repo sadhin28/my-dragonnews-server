@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
+
 const app=express()
 const multer = require('multer')
 const path =require('path')
@@ -10,6 +11,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middlewire 
 app.use(cors());
 app.use(express.json());
+
+
+
 
 app.get('/',(req,res)=>{
     res.send('বাংলাদেশ ছাত্রদলের সারভার চালু হইছে')
@@ -45,6 +49,32 @@ async function run() {
     await client.connect();
     const postcollection = client.db('SatradalDB').collection('posts')
     const membercollection = client.db('Allmember').collection('member')
+
+
+    ///=============================get,post,delete=============start===========
+app.post('/member', async (req, res) => {
+ const newmembers = req.body;
+ res.send(newmembers);
+ const result = await membercollection.insertOne(newmembers)
+ res.send(result)
+
+});
+
+// GET members
+app.get('/member', async (req, res) => {
+   const coursor = membercollection.find();
+  const result = await coursor.toArray();
+  res.send(result)
+});
+app.get('/member/:id', async (req, res) => {
+ const id = req.params.id;
+  const query ={_id : new ObjectId(id)}
+  const result = await membercollection.findOne(query)
+  res.send(result)
+});
+///=============================get,post,delete=============start===========
+
+
 //post 
 app.post('/posts',async(req,res)=>{
  const newpost = req.body;
@@ -52,28 +82,10 @@ app.post('/posts',async(req,res)=>{
  const result = await postcollection.insertOne(newpost)
  res.send(result)
 })
-//post a member/add member
-app.post('/members', async (req, res) => {
- const newmember=req.body;
- res.send(newmember);
- const result = await membercollection.insertOne(newmember)
- res.send(result)
-});
-//get all members
-app.get('/members',async(req,res)=>{
-  const coursor = membercollection.find();
-  const result = await coursor.toArray();
-  res.send(result)
 
-})
-//get single member by id
-app.get('/members/:id',async(req,res)=>{
-  const id = req.params.id;
-  const query ={_id : new ObjectId(id)}
-  const result = await membercollection.findOne(query)
-  res.send(result)
-})
-//get photo
+
+
+
 
 //get all posts
 app.get('/posts',async(req,res)=>{
@@ -97,7 +109,7 @@ app.delete('/posts/:id',async(req,res)=>{
   res.send(result)
 })
 //==========Delete user==============
-app.delete('/members/:id',async(req,res)=>{
+app.delete('/member/:id',async(req,res)=>{
   const id = req.params.id;
   const query = {_id : new ObjectId(id)}
   const result=await membercollection.deleteOne(query)
