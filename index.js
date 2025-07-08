@@ -52,12 +52,39 @@ async function run() {
 
 
     ///=============================get,post,delete=============start===========
-app.post('/member', async (req, res) => {
- const newmembers = req.body;
- res.send(newmembers);
- const result = await membercollection.insertOne(newmembers)
- res.send(result)
+// app.post('/member', async (req, res) => {
+//  const newmembers = req.body;
+//  res.send(newmembers);
+//  const result = await membercollection.insertOne(newmembers)
+//  res.send(result)
 
+// });
+//=============
+// Setup multer
+const storage = multer.memoryStorage(); // store file in memory
+const upload = multer({ storage });
+
+app.post('/member', upload.single('image'), async (req, res) => {
+  const { name, dob, designation } = req.body;
+  const imageBuffer = req.file?.buffer;
+  const imageType = req.file?.mimetype;
+
+  if (!imageBuffer) {
+    return res.status(400).json({ error: 'Image not uploaded' });
+  }
+
+  const member = {
+    name,
+    dob,
+    designation,
+    image: {
+      data: imageBuffer,
+      contentType: imageType,
+    },
+  };
+
+  await membercollection.insertOne(member);
+  res.json({ message: 'Member added successfully' });
 });
 
 // GET members
