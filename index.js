@@ -1,9 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
-
 const app=express()
-const multer = require('multer')
 const path =require('path')
 const fs= require('fs')
 const port = process.env.PORT || 5000;
@@ -18,16 +16,6 @@ app.use(express.json());
 app.get('/',(req,res)=>{
     res.send('বাংলাদেশ ছাত্রদলের সারভার চালু হইছে')
 })
-
-
-//setup file upload
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-const storage = multer.diskStorage({
-  destination: uploadDir,
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@user-management-system.h2w7at6.mongodb.net/?retryWrites=true&w=majority&appName=user-management-system`;
 
@@ -52,39 +40,12 @@ async function run() {
 
 
     ///=============================get,post,delete=============start===========
-// app.post('/member', async (req, res) => {
-//  const newmembers = req.body;
-//  res.send(newmembers);
-//  const result = await membercollection.insertOne(newmembers)
-//  res.send(result)
+app.post('/member', async (req, res) => {
+ const newmember =req.body;
+ res.send(newmember)
+ const result = await membercollection.insertOne(newmember)
+ res.send(result)
 
-// });
-//=============
-// Setup multer
-const storage = multer.memoryStorage(); // store file in memory
-const upload = multer({ storage });
-
-app.post('/member', upload.single('image'), async (req, res) => {
-  const { name, dob, designation } = req.body;
-  const imageBuffer = req.file?.buffer;
-  const imageType = req.file?.mimetype;
-
-  if (!imageBuffer) {
-    return res.status(400).json({ error: 'Image not uploaded' });
-  }
-
-  const member = {
-    name,
-    dob,
-    designation,
-    image: {
-      data: imageBuffer,
-      contentType: imageType,
-    },
-  };
-
-  await membercollection.insertOne(member);
-  res.json({ message: 'Member added successfully' });
 });
 
 // GET members
