@@ -8,8 +8,8 @@ const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middlewire 
 app.use(cors());
-app.use(express.json());
 
+app.use(express.json({ limit: "50mb" }))
 
 
 
