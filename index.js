@@ -96,6 +96,10 @@ app.delete('/posts/:id',async(req,res)=>{
   const result=await postcollection.deleteOne(query)
   res.send(result)
 })
+//==========ping==============
+app.get('/ping',(req,res)=>{
+  res.send('pong');
+})
 //==========Delete user==============
 app.delete('/member/:id',async(req,res)=>{
   const id = req.params.id;
